@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${teacherCoursesNameHeader}"></title>
+    <!-- Style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"/>
+
+    <!-- Fonts and icons -->
+    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="../static/css/main.css" th:href="@{/css/main.css}">
+</head>
+
+<body>
+<div class="fresh-table full-color-orange">
+
+    <div>
+        <form style="float: left">
+            <button id="home" class="btn btn-default" formaction="/home" formmethod="get">خانه</button>
+        </form>
+    </div>
+    <div style="float: left">
+        <form>
+            <button id="exit" class="btn btn-default" formaction="/signOut" formmethod="get">خروج از حساب کاربری
+            </button>
+        </form>
+    </div>
+
+
+    <table id="fresh-table" class="table" th:hidden="${teacherCourses.size()==0}">
+        <thead>
+        <th data-field="id">شناسه</th>
+        <th data-field="courseTitle">عنوان دوره</th>
+        <th data-field="startDate">تاریخ شروع</th>
+        <th data-field="finishData">تاریخ اتمام</th>
+        <th data-field="actions">عملیات</th>
+        </thead>
+        <tbody>
+
+        <tr th:each="courseItem : ${teacherCourses}">
+            <td th:text="${courseItem.id}"></td>
+            <td th:text="${courseItem.title}"></td>
+            <td th:text="${T(ir.maktab.onlineexam.utility.PersianDateTools).gregorianDateToPersianString(courseItem.startDate)}"></td>
+            <td th:text="${T(ir.maktab.onlineexam.utility.PersianDateTools).gregorianDateToPersianString(courseItem.finishDate)}"></td>
+            <td style="width: 300px">
+                <a rel="tooltip" title="ایجاد آزمون" th:href="@{/course/__${courseItem.id}__/quizzes}" role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-graduation-cap"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table/dist/bootstrap-table.min.js"></script>
+
+<script type="text/javascript">
+    var $table = $('#fresh-table')
+
+    $(function () {
+        $table.bootstrapTable({
+            classes: 'table table-hover table-striped',
+            toolbar: '.toolbar',
+
+            search: true,
+            showRefresh: true,
+            showToggle: true,
+            showColumns: true,
+            pagination: true,
+            striped: true,
+            sortable: true,
+            pageSize: 8,
+            pageList: [8, 10, 25, 50, 100],
+
+            formatShowingRows: function (pageFrom, pageTo, totalRows) {
+                return ''
+            },
+            formatRecordsPerPage: function (pageNumber) {
+                return pageNumber + ' rows visible'
+            }
+        })
+    })
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${courseTitleNamePersianHeader}"></title>
+    <!-- Style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"/>
+
+    <!-- Fonts and icons -->
+    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="../static/css/main.css" th:href="@{/css/main.css}">
+</head>
+
+<body>
+<div class="fresh-table full-color-orange">
+
+    <div>
+        <div>
+            <form style="float: left">
+                <button id="home" class="btn btn-default" formaction="/home" formmethod="get">خانه</button>
+            </form>
+        </div>
+        <div style="float: left">
+            <form>
+                <button id="courseList" class="btn btn-default" formaction="/manager/courseList" formmethod="get">بازگشت
+                    به لیست دوره ها
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <form class="m-3" action="#" th:action="@{/manager/addMemberToCourse/__${course.id}__}">
+        <div class="row text-center justify-content-center " style="direction: rtl">
+            <select class="custom-select w-auto m-2" th:name="roleTitleName">
+                <option th:each="role:${allRoles}"
+                        th:value="${role.title.name()}"
+                        th:text="${role.title.getPersian()}"
+                        th:if="${role.title.name()!='MANAGER'}">
+                </option>
+            </select>
+            <input class="btn btn-dark m-2" type="submit" value="افزودن عضو"/>
+        </div>
+    </form>
+
+    <table id="fresh-table" class="table" th:hidden="${(course.students==null || course.students.size()==0) && course.teacher==null}">
+        <thead>
+        <th data-field="role">نقش</th>
+        <th data-field="email">ایمیل</th>
+        <th data-field="firstName">نام</th>
+        <th data-field="lastName">نام خانوادگی</th>
+        <th data-field="actions">عملیات</th>
+        </thead>
+        <tbody>
+
+        <tr th:if="${course.teacher!=null}">
+            <td th:text="استاد"></td>
+            <td th:text="${course.teacher.userName}"></td>
+            <td th:text="${course.teacher.person.firstName}"></td>
+            <td th:text="${course.teacher.person.lastName}"></td>
+            <td>
+                <form th:action="@{/manager/deleteCourseMember/__${course.id}__}">
+                    <input type="text" hidden th:name="memberId" th:value="${course.teacher.id}">
+                    <input type="text" hidden name="roleTitleName" value="TEACHER">
+                    <button rel="tooltip" title="حذف از دوره" class="btn btn-warning btn-circle"
+                            th:id="${course.teacher.id}" type="submit" onclick="return ConfirmDelete()"><i
+                            class="fa fa-trash-alt"></i></button>
+                </form>
+            </td>
+        </tr>
+        <tr th:each="studentItem:${course.students}">
+            <td th:text="دانشجو"></td>
+            <td th:text="${studentItem.userName}"></td>
+            <td th:text="${studentItem.person.firstName}"></td>
+            <td th:text="${studentItem.person.lastName}"></td>
+            <td>
+                <form th:action="@{/manager/deleteCourseMember/__${course.id}__}">
+                    <input type="text" hidden th:name="memberId" th:value="${studentItem.id}">
+                    <input type="text" hidden name="roleTitleName" value="STUDENT">
+                    <button rel="tooltip" title="حذف از دوره" class="btn btn-warning btn-circle"
+                            th:id="${studentItem.id}" type="submit" onclick="return ConfirmDelete()"><i
+                            class="fa fa-trash-alt"></i></button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table/dist/bootstrap-table.min.js"></script>
+
+<script type="text/javascript">
+    var $table = $('#fresh-table')
+
+    function test(name, password) {
+        alert("name: " + name + " password:" + password);
+    }
+
+    $(function () {
+        $table.bootstrapTable({
+            classes: 'table table-hover table-striped',
+            toolbar: '.toolbar',
+
+            search: true,
+            showRefresh: true,
+            showToggle: true,
+            showColumns: true,
+            pagination: true,
+            striped: true,
+            sortable: true,
+            pageSize: 8,
+            pageList: [8, 10, 25, 50, 100],
+
+            formatShowingRows: function (pageFrom, pageTo, totalRows) {
+                return ''
+            },
+            formatRecordsPerPage: function (pageNumber) {
+                return pageNumber + ' rows visible'
+            }
+        })
+    })
+
+</script>
+
+<script>
+    function ConfirmDelete() {
+        var x = confirm("آیا از حذف رکورد اطمینان دارید؟");
+        if (x)
+            return true;
+        else
+            return false;
+    }
+</script>
+</body>
+</html>

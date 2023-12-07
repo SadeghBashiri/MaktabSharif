@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>نتایج آزمون</title>
+
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'>
+    <link rel="stylesheet" href="../static/css/main.css" th:href="@{/css/main.css}">
+</head>
+<body>
+<!--<div class="modal fade in" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"-->
+<!--     style="display: block; padding-left: 17px;">-->
+<!--    <div class="modal-dialog">-->
+<!--        <div class="modal-content">-->
+            <div class="modal-header">
+
+                <h4 class="modal-title" id="myModalLabel" style="text-align: center">نتایج آزمون</h4>
+
+            </div>
+
+            <div th:if="${T(ir.maktab.onlineexam.utility.QuestionTools).getQuestionType(questionItem).name().equals('DetailedQuestion')}">
+                <form th:action="@{/noUrl}" method="post">
+                    <div class="border border-dark m-4 p-4 rounded font-weight-bolder text-center justify-content-center"
+                         style="direction: rtl">
+
+                        <label>عنوان سوال: </label>
+                        <label th:text="${questionItem.title}"></label>
+                        <br>
+
+                        <label>صورت سوال: </label>
+                        <label th:text="${questionItem.definition}"></label>
+                        <br>
+
+                        <label>پاسخ دانشجو: </label>
+                        <label th:text="${(answerItem == null || answerItem.content.isEmpty())?('بدون پاسخ'):answerItem.content}">
+                        </label>
+                        <br>
+
+                    </div>
+                </form>
+
+            </div>
+
+            <div th:if="${T(ir.maktab.onlineexam.utility.QuestionTools).getQuestionType(questionItem).name().equals('MultiChoiceQuestion')}">
+                <form th:action="@{/noUrl}" method="post">
+                    <div class="border border-dark rounded m-4 p-4 font-weight-bolder text-center justify-content-center"
+                         style="direction: rtl">
+
+                        <label>عنوان سوال: </label>
+                        <label th:text="${questionItem.title}"></label>
+                        <br>
+
+                        <label>صورت سوال: </label>
+                        <label th:text="${questionItem.definition}"></label>
+                        <br>
+
+                        <div class="justify-content-around" style="direction: rtl">
+                            <input type="checkbox"
+                                   class="form-check form-check-inline radioCheck"
+                                   disabled
+                                   th:each="choiceItem:${questionItem.choiceList}"
+                                   th:text="${!choiceItem.trueChoice ? choiceItem.title : choiceItem.title + '(صحیح)'}"
+                                   th:checked="${answerItem != null && choiceItem.title == answerItem.content}">
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+            <div class=" text-center justify-content-center" style="direction: rtl">
+
+                <form class="m-2"
+                      th:action="@{/quiz/__${quizId}__/participant/__${studentId}__/question/__${questionNumberInQuiz}__/submitScore}"
+                      method="post">
+
+                    <label class="font-weight-bold"
+                           th:text="${('نمره پیش فرض: ') + gradingDto.defaultScoreForQuestion}"></label>
+                    <br>
+                    <input hidden type="text" th:field="*{gradingDto.defaultScoreForQuestion}">
+
+                    <label class="font-weight-bold"
+                           th:text="${('نمره کسب شده: ') + gradingDto.participantScoreForQuestion}"
+                           th:hidden="${quizOperation.customGraded != true
+                   && T(ir.maktab.onlineexam.utility.QuestionTools).getQuestionType(questionItem).name()
+                   .equals('DetailedQuestion') && answerItem != null && !answerItem.content.isEmpty()}">
+                    </label>
+                    <br>
+
+                    <p th:if="${param.invalidScoreError}" class="text-danger">نمره وارد شده بزرگتر از نمره پیش فرض سوال
+                        است</p>
+
+                    <input class="text-center rounded m-2"
+                           placeholder="نمره کسب شده"
+                           th:disabled="${quizOperation.customGraded == true}"
+                           th:hidden="${quizOperation.customGraded == true || T(ir.maktab.onlineexam.utility.QuestionTools)
+                            .getQuestionType(questionItem).name().equals('MultiChoiceQuestion')
+                            || (T(ir.maktab.onlineexam.utility.QuestionTools).getQuestionType(questionItem).name()
+                            .equals('DetailedQuestion') && (answerItem == null || answerItem.content.isEmpty()))}"
+                           type="text"
+                           th:field="*{gradingDto.participantScoreForQuestion}">
+                    <br>
+
+                    <input th:hidden="${quizOperation.getCustomGraded()==true}"
+                           class=" btn-dark"
+                           type="submit"
+                           th:value="${questionNumberInQuiz==questionsCount?'ثبت نمره':'ثبت نمره و رفتن به سوال بعدی'}">
+                </form>
+
+                <div class="row text-center justify-content-center">
+
+                    <form class="m-2"
+                          th:action="@{/quiz/__${quizId}__/participant/__${studentId}__/answers/__${questionNumberInQuiz - 1}__}">
+                        <input th:disabled="${questionNumberInQuiz == 1}" class="btn btn-dark" type="submit"
+                               value="سوال قبلی">
+                    </form>
+
+                    <form class="m-2"
+                          th:action="@{/quiz/__${quizId}__/participant/__${studentId}__/answers/__${questionNumberInQuiz + 1}__}">
+
+                        <input th:disabled="${questionNumberInQuiz == questionsCount}"
+                               class="btn btn-dark"
+                               type="submit"
+                               value="سوال بعدی">
+<!--                        <button type="submit"-->
+<!--                                th:disabled="${questionNumberInQuiz == questionsCount}"-->
+<!--                                class="btn btn-default"-->
+<!--                                data-dismiss="modal">سوال بعدی-->
+<!--                        </button>-->
+
+                    </form>
+
+                </div>
+            </div>
+
+<!--            <div class="modal-footer" style="text-align: left">-->
+<!--                <form action="#" th:action="@{/student/__${studentId}__/course/__${courseId}__/quizzes}">-->
+<!--                    <button type="submit" class="btn btn-default" data-dismiss="modal">بستن</button>-->
+<!--                </form>-->
+<!--            </div>-->
+
+
+
+<div class="modal-footer" style="text-align: left"
+     th:with="stringRolesOfSingedInUser=${T(ir.maktab.onlineexam.utility.ServiceTools).accountService
+                          .getStringTitlesOfRolesOfSignedInAccount()}">
+    <div style="float: left;padding-right: 20px; padding-left: 30%">
+        <form action="#" th:action="@{/quiz/__${quizId}__/participants}" th:if="${stringRolesOfSingedInUser.contains('TEACHER')}">
+            <button type="submit" class="btn btn-default" data-dismiss="modal">بازگشت به لیست شرکت کنندگان آزمون</button>
+        </form>
+    </div>
+    <div style="float: left;padding-right: 20px">
+        <form action="#" th:action="@{/course/__${courseId}__/quizzes}" th:if="${stringRolesOfSingedInUser.contains('TEACHER')}">
+            <button type="submit" class="btn btn-default" data-dismiss="modal">بازگشت به لیست آزمون های دوره</button>
+        </form>
+    </div>
+    <div style="float: left;padding-right: 20px">
+        <form action="#" th:action="@{/student/__${studentId}__/course/__${courseId}__/quizzes}" th:if="${stringRolesOfSingedInUser.contains('STUDENT')}">
+            <button type="submit" class="btn btn-default" data-dismiss="modal">بازگشت به لیست آزمون های دوره</button>
+        </form>
+    </div>
+</div>
+
+
+<!--            <div class="row text-center justify-content-center m-5"-->
+<!--                 th:with="stringRolesOfSingedInUser=${T(ir.maktab.onlineexam.utility.ServiceTools).accountService-->
+<!--                          .getStringTitlesOfRolesOfSignedInAccount()}">-->
+
+<!--                <form th:if="${stringRolesOfSingedInUser.contains('TEACHER')}"-->
+<!--                      class="m-2"-->
+<!--                      th:action="@{/quiz/__${quizId}__/participants}">-->
+<!--                    <input class="btn btn-dark" type="submit" value="بازگشت به لیست شرکت کنندگان آزمون">-->
+<!--                </form>-->
+
+<!--                <form th:if="${stringRolesOfSingedInUser.contains('TEACHER')}"-->
+<!--                      class="m-2"-->
+<!--                      th:action="@{/course/__${courseId}__/quizzes}">-->
+<!--                    <input class="btn btn-dark" type="submit" value="بازگشت به لیست آزمون های دوره">-->
+<!--                </form>-->
+
+<!--                <form th:if="${stringRolesOfSingedInUser.contains('STUDENT')}"-->
+<!--                      class="m-2"-->
+<!--                      th:action="@{/student/__${studentId}__/course/__${courseId}__/quizzes}">-->
+<!--                    <input class="btn btn-dark" type="submit" value="بازگشت به لیست آزمون های دوره">-->
+<!--                </form>-->
+
+<!--                <form class="m-2" th:action="@{/home}">-->
+<!--                    <input class="btn btn-dark" type="submit" value="بازگشت به منوی اصلی">-->
+<!--                </form>-->
+
+<!--                <form class="m-2" th:action="@{/signOut}">-->
+<!--                    <input class="btn btn-dark" type="submit" value="خروج از حساب کاربری">-->
+<!--                </form>-->
+
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>-->
+<!--<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>-->
+<!--<script src="./script.js"></script>-->
+
+</body>
+</html>

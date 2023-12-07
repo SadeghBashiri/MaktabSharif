@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ویرایش اکانت</title>
+
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'>
+    <link rel="stylesheet" href="../static/css/main.css" th:href="@{/css/main.css}">
+</head>
+<body>
+<div class="modal fade in" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+     style="display: block; padding-left: 17px;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true" class=""> × </span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel" style="text-align: left">ویرایش حساب کاربری</h4>
+
+            </div>
+            <div class="modal-body">
+                <div id="modalContent">
+                    <form role="form" name="modalForm" action="#"
+                          th:action="@{/manager/editProfile/__${editProfile.id}__}" method="post">
+                        <div class="form-group"><label for="id">شناسه</label>
+                            <input class="form-control" name="id" id="id" readonly th:field="*{editProfile.id}">
+                            <input class="form-control" name="personId" id="personId" readonly
+                                   th:field="*{editProfile.personId}" type="hidden">
+                            <input class="form-control" name="roleId" id="roleId" readonly
+                                   th:field="*{editProfile.roleId}" type="hidden">
+                        </div>
+                        <div class="form-group"><label for="firstName">نام</label>
+                            <input class="form-control" name="firstName" id="firstName"
+                                   th:field="*{editProfile.firstName}">
+                            <p th:if="${param.Error}" class="text-danger">نام را وارد نمایید</p>
+                        </div>
+                        <div class="form-group"><label for="lastName">نام خانوادگی</label>
+                            <input class="form-control" name="lastName" id="lastName"
+                                   th:field="*{editProfile.lastName}">
+                            <p th:if="${param.Error}" class="text-danger">نام خانوادگی را وارد نمایید</p>
+                        </div>
+                        <div class="form-group"><label for="role">نقش</label>
+                            <select class="form-control" id="role" th:field="*{editProfile.roleTitle}">
+                                <option th:each="role : ${roles}"
+                                        th:value="${role.title.name()}"
+                                        th:text="${role.title.getPersian()}"
+                                        th:if="${role.title.name()} != 'MANAGER'">
+                                </option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">اعمال تغییرات</button>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer" style="text-align: left">
+                <!--                <button type="button" class="btn btn-primary">اعمال تغییرات</button>-->
+                <!--                <form action="#" th:action="@{/manager/editProfile/__${editProfile.id}__/__${editProfile.firstName}__}" method="post">-->
+                <!--                    <button type="submit" class="btn btn-primary">اعمال تغییرات</button>-->
+                <!--                </form>-->
+                <form action="#" th:action="@{/manager/profileList}">
+                    <button type="submit" class="btn btn-default" data-dismiss="modal">بستن</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--<script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>-->
+<!--<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>-->
+<!--<script src="./script.js"></script>-->
+</body>
+</html>

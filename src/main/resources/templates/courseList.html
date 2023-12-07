@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>دوره ها</title>
+    <!-- Style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"/>
+
+    <!-- Fonts and icons -->
+    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="../static/css/persian-datepicker.css" th:href="@{/css/persian-datepicker.css}"/>
+
+    <link rel="stylesheet" href="../static/css/main.css" th:href="@{/css/main.css}">
+</head>
+
+<body>
+<div class="fresh-table full-color-orange">
+
+    <div>
+        <form style="float: left">
+            <button id="home" class="btn btn-default" formaction="/home" formmethod="get">خانه</button>
+        </form>
+    </div>
+    <div style="float: left">
+        <form>
+            <button id="exit" class="btn btn-default" formaction="/signOut" formmethod="get">خروج از حساب کاربری
+            </button>
+        </form>
+    </div>
+    <div>
+        <p th:if="${param.invalidTitleError}" class="text-danger font-weight-bold" style="direction: rtl; color: white">
+            عنوان وارد شده نامعتبر است!
+        </p>
+
+        <p th:if="${param.invalidStartDateError}" class="text-danger font-weight-bold"
+           style="direction: rtl; color: white">
+            تاریخ شروع نامعتبر است!
+        </p>
+
+        <p th:if="${param.startDateGreaterThanFinishDateError}" class="text-danger font-weight-bold"
+           style="direction: rtl; color: white">
+            تاریخ شروع بزرگتر از تاریخ پایان است!
+        </p>
+
+        <p th:if="${param.startAndFinishAtSameDateError}" class="text-danger font-weight-bold"
+           style="direction: rtl; color: white">
+            تاریخ های شروع و پایان نمی توانند در یک روز باشند!
+        </p>
+    </div>
+    <form class="m-3" action="#" th:action="@{/manager/courseList}" method="post">
+        <p hidden="hidden"><input type="text" th:field="*{courseDto.id}"/></p>
+        <div class="row text-center justify-content-center " style="direction: rtl">
+
+            <input class="text-center rounded m-2" type="text" th:field="*{courseDto.title}" placeholder="عنوان دوره"/>
+
+            <label class="mt-3"> تاریخ شروع: </label>
+            <input class="myDatePicker text-center rounded m-2" type="text"
+                   th:field="*{courseDto.startDate}" placeholder="تاریخ شروع"/>
+
+            <label class="mt-3"> تاریخ اتمام: </label>
+            <input class="myDatePicker text-center rounded m-2" type="text"
+                   th:field="*{courseDto.finishDate}" placeholder="تاریخ اتمام"/>
+
+            <input class="btn btn-dark m-2" type="submit" value="ثبت" th:name="ok"/>
+
+        </div>
+    </form>
+
+    <table id="fresh-table" class="table" th:hidden="${allCoursesDtoList.size()==0}">
+        <thead>
+        <th data-field="id">شناسه</th>
+        <th data-field="courseTitle">عنوان دوره</th>
+        <th data-field="startDate">تاریخ شروع</th>
+        <th data-field="finishData">تاریخ اتمام</th>
+        <th data-field="actions">عملیات</th>
+        </thead>
+        <tbody>
+
+        <tr th:each="courseDtoItem : ${allCoursesDtoList}">
+            <td th:text="${courseDtoItem.id}"></td>
+            <td th:text="${courseDtoItem.title}"></td>
+            <td th:text="${courseDtoItem.startDate}"></td>
+            <td th:text="${courseDtoItem.finishDate}"></td>
+            <td style="width: 300px">
+                <a rel="tooltip" title="اعضا" th:href="@{/manager/courseMembers/__${courseDtoItem.id}__}" role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-user-plus"></i>
+                </a>
+                <a rel="tooltip" title="ویرایش" th:href="@{/manager/editCourse/__${courseDtoItem.id}__}" role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-edit"></i>
+                </a>
+                <a rel="tooltip" title="حذف" th:href="@{/manager/deleteCourse/__${courseDtoItem.id}__}" role="button"
+                   class="btn btn-warning btn-circle" onclick="return ConfirmDelete()">
+                    <i class="fa fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table/dist/bootstrap-table.min.js"></script>
+
+<script type="text/javascript">
+    var $table = $('#fresh-table')
+
+    // var $alertBtn = $('#alertBtn')
+    function test(name, password) {
+        alert("name: " + name + " password:" + password);
+    }
+
+    $(function () {
+        $table.bootstrapTable({
+            classes: 'table table-hover table-striped',
+            toolbar: '.toolbar',
+
+            search: true,
+            showRefresh: true,
+            showToggle: true,
+            showColumns: true,
+            pagination: true,
+            striped: true,
+            sortable: true,
+            pageSize: 8,
+            pageList: [8, 10, 25, 50, 100],
+
+            formatShowingRows: function (pageFrom, pageTo, totalRows) {
+                return ''
+            },
+            formatRecordsPerPage: function (pageNumber) {
+                return pageNumber + ' rows visible'
+            }
+        })
+    })
+
+</script>
+
+<script type="text/javascript" src="../static/js/persian-date.js" th:src="@{/js/persian-date.js}"></script>
+<script type="text/javascript" src="../static/js/persian-datepicker.js" th:src="@{/js/persian-datepicker.js}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".myDatePicker").pDatepicker(
+            {
+                format: 'YYYY/MM/DD'
+            }
+        );
+    });
+</script>
+
+<script>
+    function ConfirmDelete() {
+        var x = confirm("آیا از حذف رکورد اطمینان دارید؟");
+        if (x)
+            return true;
+        else
+            return false;
+    }
+</script>
+
+</body>
+</html>

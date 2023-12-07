@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>خانه</title>
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.3/css/bootstrap.min.css'>
+    <!--  <link rel="stylesheet" href="../static/css/home.css">-->
+    <link rel="stylesheet" href="../static/css/home.css" th:href="@{/css/home.css}">
+
+</head>
+<body> <!--th:style="'background-image:url(' + @{/image/home-screen.jpg} + ')'";-->
+<!-- partial:index.partial.html -->
+<nav class="navbar navbar-light main-nav">
+    <div class="container">
+        <ul class="nav navbar-nav">
+            <!--            <li class="nav-item "><a class="nav-link" href="#/signOut">خروج</a><span class="sr-only">(current)</span></li>-->
+            <li class="nav-item" data-target="#signOut"><a class="nav-link" href="#/about-us">خروج</a></li>
+            <li class="nav-item" data-target="#about-us"><a class="nav-link" href="#/about-us">درباره ما</a></li>
+            <li class="nav-item" data-target="#student"><a class="nav-link" href="#/student">دانشجو</a></li>
+            <li class="nav-item" data-target="#teacher"><a class="nav-link" href="#/teacher">مدرس</a></li>
+            <li class="nav-item" data-target="#manager"><a class="nav-link" href="#/manager">مدیر</a></li>
+            <li class="nav-item active"><a class="nav-link" href="#/home">خانه</a></li>
+        </ul>
+    </div>
+</nav>
+<nav class="navbar navbar-light sub-nav">
+    <div class="container">
+        <ul class="nav navbar-nav" id="signOut">
+            <li class="nav-item"><a class="nav-link" href="/signOut">خروج از حساب کاربری</a></li>
+        </ul>
+        <ul class="nav navbar-nav" id="manager">
+            <!--            <li class="nav-item"><a class="nav-link" href="#">لیست دوره‌ها</a></li>-->
+            <!--            <li class="nav-item"><a class="nav-link" href="#">تعریف دوره‌ی جدید</a></li>-->
+            <!--            <li class="nav-item"><a class="nav-link" href="#">اکانت‌ دانشجو‌ها</a></li>-->
+            <li class="nav-item"><a class="nav-link" href="/manager/courseList"
+                                    th:if="${authoritiesNames.contains('ROLE_MANAGER_GENERAL_PRIVILEGE')}">
+                دوره ها</a></li>
+            <li class="nav-item"><a class="nav-link" href="/manager/courseCategory"
+                                    th:if="${authoritiesNames.contains('ROLE_MANAGER_GENERAL_PRIVILEGE')}">
+                دسته بندی دوره ها</a></li>
+            <li class="nav-item"><a class="nav-link" href="/manager/profileList"
+                                    th:if="${authoritiesNames.contains('ROLE_MANAGER_GENERAL_PRIVILEGE')}">
+                لیست</a></li>
+        </ul>
+        <ul class="nav navbar-nav" id="teacher">
+            <li class="nav-item"><a class="nav-link" href="/teacher/courses"
+                                    th:if="${authoritiesNames.contains('ROLE_TEACHER_GENERAL_PRIVILEGE')}"
+            >لیست دوره های شما</a></li>
+        </ul>
+        <ul class="nav navbar-nav" id="student">
+            <li class="nav-item"><a class="nav-link" href="/student/courses"
+                                    th:if="${authoritiesNames.contains('ROLE_STUDENT_GENERAL_PRIVILEGE')}">
+                لیست دوره های شما</a></li>
+        </ul>
+    </div>
+</nav>
+<!-- partial -->
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.4/js/tether.min.js'></script>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.3/js/bootstrap.min.js'></script>
+<!--<script  src="../static/js/home.js"></script>-->
+<script type="text/javascript" src="../static/js/home.js" th:src="@{/js/home.js}"></script>
+
+</body>
+</html>

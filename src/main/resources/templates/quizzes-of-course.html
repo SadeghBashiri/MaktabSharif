@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>آزمون های این دوره</title>
+
+    <!-- Style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"/>
+
+    <!-- Fonts and icons -->
+    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="../static/css/main.css" th:href="@{/css/main.css}">
+</head>
+
+<body>
+<div class="fresh-table full-color-orange">
+
+    <div>
+        <div>
+            <form style="float: left">
+                <button id="home" class="btn btn-default" formaction="/home" formmethod="get">خانه</button>
+            </form>
+        </div>
+        <div style="float: left">
+            <form>
+                <button id="courseList" class="btn btn-default" formaction="/teacher/courses" formmethod="get">بازگشت
+                    به لیست دوره ها
+                </button>
+            </form>
+        </div>
+        <div style="float: left">
+            <form>
+                <button id="exit" class="btn btn-default" formaction="/signOut" formmethod="get">خروج از حساب کاربری
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <form class="m-3" action="#" th:action="@{/course/__${courseId}__/addQuiz}" method="post">
+        <p hidden="hidden"><input type="text" th:field="*{quiz.id}"/></p>
+        <p hidden="hidden"><input type="text" th:field="*{quiz.creatorTeacherId}"/></p>
+        <div class="row text-center justify-content-center" style="direction: rtl">
+            <input class="text-center rounded m-2" type="text" th:field="*{quiz.title}" placeholder="عنوان آزمون"/>
+            <input class="text-center rounded m-2" type="text" th:field="*{quiz.description}"
+                   placeholder="توضیحات آزمون"/>
+            <input class="text-center rounded m-2" type="number" th:field="*{quiz.time}"
+                   placeholder="زمان آزمون به دقیقه"/>
+            <input class="btn btn-dark m-2" type="submit" value="ثبت" th:name="ok"/>
+        </div>
+    </form>
+
+    <p style="color: white" th:if="${param.trueChoiceNotExistError}" class="text-danger">خطا در فعالسازی آزمون! عدم وجود
+        گزینه صحیح در سوال تستی</p>
+    <p style="color: white" th:if="${param.zeroDefaultScoreError}" class="text-danger">خطا در فعالسازی آزمون! نمره پیش
+        فرض صفر</p>
+    <p style="color: white" th:if="${param.blankQuizError}" class="text-danger">خطا در فعالسازی آزمون! سوالی برای آزمون
+        مورد نظر تعریف نشده است</p>
+
+    <table id="fresh-table" class="table" th:hidden="${courseQuizzes.size()==0}">
+        <thead>
+        <th data-field="role">شناسه</th>
+        <th data-field="email">عنوان آزمون</th>
+        <th data-field="firstName">توضیحات</th>
+        <th data-field="lastName">زمان آمون (دقیقه)</th>
+        <th data-field="status">فعال / غیرفعال</th>
+        <th data-field="actions">عملیات</th>
+        </thead>
+        <tbody>
+
+        <tr th:each="quizItem:${courseQuizzes}"><!-- th:bgcolor="${quizItem.getActive() == true ? '28a745' : '343a40'}"-->
+            <td th:text="${quizItem.id}"></td>
+            <td th:text="${quizItem.title}"></td>
+            <td th:text="${quizItem.description}"></td>
+            <td th:text="${quizItem.time}"></td>
+            <td> <!--th:text="${quizItem.active}"-->
+<!--                <span th:if="${quizItem.getActive() == null || quizItem.getActive() == false}">غیرفعال</span>-->
+                <span th:if="${quizItem.active == true}">آزمون فعال میباشد</span>
+                <span th:if="${quizItem.active== false}">آزمون غیر فعال میباشد</span>
+                <span th:if="${quizItem.active == null}">-</span>
+<!--                <span th:unless="${quizItem.getActive() == false || quizItem.getActive() == null}">فعال</span>-->
+            </td>
+            <td style="width: 300px">
+                <a rel="tooltip" title="سوالات آزمون" th:href="@{/quiz/__${quizItem.id}__/questions}" role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-question-circle"></i>
+                </a>
+                <a rel="tooltip" title="ویرایش" th:href="@{/course/__${courseId}__/editQuiz/__${quizItem.id}__}"
+                   role="button"
+                   class="btn btn-warning btn-circle"
+                   th:disabled="${quizItem.creatorTeacherId != currentTeacherAccount.id}">
+                    <i class="fa fa-edit"></i>
+                </a>
+                <a rel="tooltip" title="فعالسازی آزمون" th:href="@{/course/__${courseId}__/quiz/__${quizItem.id}__/activation}"
+                   th:if="${quizItem.getActive() == false}"
+                   role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-check-circle"></i>
+                </a>
+                <a rel="tooltip" title="غیرفعالسازی آزمون" th:href="@{/course/__${courseId}__/quiz/__${quizItem.id}__/activation}"
+                   th:if="${quizItem.getActive() == true}"
+                   role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-times-circle"></i>
+                </a>
+                <a rel="tooltip" title="شرکت کنندگان در آزمون" th:href="@{/quiz/__${quizItem.id}__/participants}"
+                   role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-users"></i>
+                </a>
+                <a rel="tooltip" title="حذف" th:href="@{/course/__${courseId}__/deleteQuiz/__${quizItem.id}__}"
+                   role="button"
+                   th:disabled="${quizItem.creatorTeacherId != currentTeacherAccount.id}"
+                   class="btn btn-warning btn-circle" onclick="return ConfirmDelete()">
+                    <i class="fa fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table/dist/bootstrap-table.min.js"></script>
+
+<script type="text/javascript">
+    var $table = $('#fresh-table')
+
+    function test(name, password) {
+        alert("name: " + name + " password:" + password);
+    }
+
+    $(function () {
+        $table.bootstrapTable({
+            classes: 'table table-hover table-striped',
+            toolbar: '.toolbar',
+
+            search: true,
+            showRefresh: true,
+            showToggle: true,
+            showColumns: true,
+            pagination: true,
+            striped: true,
+            sortable: true,
+            pageSize: 8,
+            pageList: [8, 10, 25, 50, 100],
+
+            formatShowingRows: function (pageFrom, pageTo, totalRows) {
+                return ''
+            },
+            formatRecordsPerPage: function (pageNumber) {
+                return pageNumber + ' rows visible'
+            }
+        })
+    })
+
+</script>
+
+<script>
+    function ConfirmDelete() {
+        var x = confirm("آیا از حذف رکورد اطمینان دارید؟");
+        if (x)
+            return true;
+        else
+            return false;
+    }
+</script>
+</body>
+</html>

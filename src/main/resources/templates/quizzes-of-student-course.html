@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>آزمونهای این دوره</title>
+    <!-- Style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"/>
+
+    <!-- Fonts and icons -->
+    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
+
+    <!-- Style -->
+    <link rel="stylesheet" href="../static/css/main.css" th:href="@{/css/main.css}">
+</head>
+
+<body>
+<div class="fresh-table full-color-orange">
+    <div>
+        <form style="float: left">
+            <button id="home" class="btn btn-default" formaction="/home" formmethod="get">خانه</button>
+        </form>
+    </div>
+    <div>
+        <form style="float: left">
+            <button id="student_course" class="btn btn-default" formaction="/student/courses" formmethod="get">بازگشت به
+                لیست دوره ها
+            </button>
+        </form>
+    </div>
+    <div style="float: left">
+        <form>
+            <button id="exit" class="btn btn-default" formaction="/signOut" formmethod="get">خروج از حساب کاربری
+            </button>
+        </form>
+    </div>
+    <label style="direction: rtl" class="alert-danger p-1 rounded">توجه: با کلیک بر روی دکمه شروع آزمون، زمان شما محاسبه
+        خواهد شد.</label>
+
+    <table id="fresh-table" class="table" th:hidden="${courseQuizzes.size()==0}">
+        <thead>
+        <th data-field="id">شناسه</th>
+        <th data-field="status">وضعیت</th>
+        <th data-field="title">عنوان آزمون</th>
+        <th data-field="description">توضیحات آزمون</th>
+        <th data-field="duration">زمان آزمون</th>
+        <th data-field="score">نمره شما</th>
+        <th data-field="actions">عملیات</th>
+        <th data-field="actions2"></th>
+        </thead>
+        <tbody>
+<!--th:bgcolor="${operationItem == null ? '333a69' : (operationItem.customGraded == true ? 'a4ad4c' : (operationItem.finished == true ? '693333' : '336940'))}"-->
+        <tr th:each="quizItem:${courseQuizzes}"
+            th:with="operationItem=${T(ir.maktab.onlineexam.utility.ServiceTools).quizOperationService.findByQuizIdAndStudentId(quizItem.id,studentId)}"
+            th:if="${quizItem.active == true}">
+
+            <td th:text="${quizItem.id}"></td>
+            <td th:text="${idsOfFinishedQuizzes.contains(quizItem.id)?(operationItem.customGraded == true ? 'تصحیح شده':'پایان یافته') : (idsOfInProgressQuizzes.contains(quizItem.id)?'درحال برگزاری':'برگزارنشده')}"></td>
+            <td th:text="${quizItem.title}"></td>
+            <td th:text="${quizItem.description}"></td>
+            <td th:text="${quizItem.time}"></td>
+            <td style="direction: rtl"
+                th:text="${(operationItem == null || operationItem.customGraded != true) ? '-----' : (T(ir.maktab.onlineexam.utility.ScoresListTools).sum(operationItem.resultScores) + ' از ' + T(ir.maktab.onlineexam.utility.ScoresListTools).sum(quizItem.defaultScoresList))}"></td>
+            <td style="width: 150px">
+                <a rel="tooltip" title="شروع آزمون"
+                   th:href="@{/student/__${currentStudent.id}__/course/__${courseId}__/quiz/__${quizItem.id}__/enterQuizOperation/question/1}"
+                   th:if="${operationItem==null}"
+                   role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-play"></i>
+                </a>
+                <a rel="tooltip" title="جزییات تصحیح"
+                   th:href="@{/quiz/__${quizItem.id}__/participant/__${studentId}__/answers/1}" role="button"
+                   th:if="${operationItem!=null && operationItem.customGraded == true}"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-info"></i>
+                </a>
+            </td>
+            <td>
+                <form th:action="@{/student/__${currentStudent.id}__/course/__${courseId}__/quiz/__${quizItem.id}__/enterQuizOperation/question/1}"
+                      th:if="${operationItem!=null && operationItem.customGraded !=true}">
+                    <input class="btn btn-light" type="submit"
+                           th:value="${idsOfFinishedQuizzes.contains(quizItem.id)?'پایان یافته':(idsOfInProgressQuizzes.contains(quizItem.id)?'ادامه آزمون':'شروع آزمون')}"
+                           th:disabled="${idsOfFinishedQuizzes.contains(quizItem.id)}">
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table/dist/bootstrap-table.min.js"></script>
+
+<script type="text/javascript">
+    var $table = $('#fresh-table')
+
+    $(function () {
+        $table.bootstrapTable({
+            classes: 'table table-hover table-striped',
+            toolbar: '.toolbar',
+
+            search: true,
+            showRefresh: true,
+            showToggle: true,
+            showColumns: true,
+            pagination: true,
+            striped: true,
+            sortable: true,
+            pageSize: 8,
+            pageList: [8, 10, 25, 50, 100],
+
+            formatShowingRows: function (pageFrom, pageTo, totalRows) {
+                return ''
+            },
+            formatRecordsPerPage: function (pageNumber) {
+                return pageNumber + ' rows visible'
+            }
+        })
+    })
+
+</script>
+
+</body>
+</html>

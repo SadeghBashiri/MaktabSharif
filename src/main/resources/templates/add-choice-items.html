@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>گزینه های سوال تستی</title>
+
+    <!-- Style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"/>
+
+    <!-- Fonts and icons -->
+    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="../static/css/main.css" th:href="@{/css/main.css}">
+</head>
+
+<body>
+<div class="fresh-table full-color-orange">
+
+    <div>
+        <div>
+            <form style="float: left">
+                <button id="home" class="btn btn-default" formaction="/home" formmethod="get">خانه</button>
+            </form>
+        </div>
+        <div style="float: left">
+            <form class="m-2" th:action="@{/quiz/__${quizId}__/questions}">
+                <button class="btn btn-default" type="submit">بازگشت به لیست سوالات آزمون</button>
+            </form>
+        </div>
+        <div style="float: left">
+            <form>
+                <button id="exit" class="btn btn-default" formaction="/signOut" formmethod="get">خروج از حساب کاربری
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="row justify-content-center " style="direction: rtl; padding-right: 30px">
+
+        <label class="mt-3"> عنوان سوال: </label>
+        <label th:text="${question.title}"></label><br>
+
+        <label>صورت سوال: </label>
+        <label th:text="${question.definition}"></label>
+
+    </div>
+
+    <form class="m-3" action="#" th:action="@{/quiz/__${quizId}__/question/__${questionId}__/addChoiceItem}"
+          method="post">
+
+        <p hidden="hidden"><input type="text" th:field="*{choice.id}"/></p>
+        <p hidden><input type="checkbox" th:field="*{choice.trueChoice}"></p>
+
+        <div class="row text-center justify-content-center " style="direction: rtl">
+
+            <input class="text-center rounded m-2" type="text" th:field="*{choice.title}" placeholder="عنوان گزینه"/>
+
+            <input class="btn btn-dark m-2" type="submit" value="ثبت" th:name="ok"/>
+
+        </div>
+    </form>
+
+    <table id="fresh-table" class="table" th:hidden="${question.choiceList.size()==0}">
+        <thead>
+        <th data-field="title">عنوان گزینه</th>
+        <th data-field="trueChoice">ثبت / لغو ( گزینه صحیح )</th>
+        <th data-field="actions">عملیات</th>
+        </thead>
+        <tbody>
+
+        <tr th:each="choiceItem:${question.choiceList}"><!--th:bgcolor="${choiceItem.trueChoice?'28a745':'343a40'}"-->
+            <td th:text="${choiceItem.title}"></td>
+            <td>
+                <form th:action="@{/quiz/__${quizId}__/question/__${question.id}__/setTrueChoice/__${choiceItem.id}__}">
+                    <input class="btn btn-light"
+                           type="submit"
+                           th:value="${choiceItem.trueChoice?'لغو گزینه صحیح':'ثبت گزینه صحیح'}"
+                           th:disabled="__${T(ir.maktab.onlineexam.utility.QuestionTools)
+                           .MultiChoiceQuestionContainsATrueChoice(question) && !choiceItem.trueChoice}__">
+                </form>
+            </td>
+            <td style="width: 300px">
+                <a rel="tooltip" title="ویرایش"
+                   th:href="@{/quiz/__${quizId}__/question/__${questionId}__/editChoiceItem/__${choiceItem.id}__}"
+                   role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-edit"></i>
+                </a>
+                <a rel="tooltip" title="حذف"
+                   th:href="@{/quiz/__${quizId}__/question/__${questionId}__/deleteChoiceItem/__${choiceItem.id}__}"
+                   role="button"
+                   class="btn btn-warning btn-circle" onclick="return ConfirmDelete()">
+                    <i class="fa fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table/dist/bootstrap-table.min.js"></script>
+
+<script type="text/javascript">
+    var $table = $('#fresh-table')
+
+    function test(name, password) {
+        alert("name: " + name + " password:" + password);
+    }
+
+    $(function () {
+        $table.bootstrapTable({
+            classes: 'table table-hover table-striped',
+            toolbar: '.toolbar',
+
+            search: true,
+            showRefresh: true,
+            showToggle: true,
+            showColumns: true,
+            pagination: true,
+            striped: true,
+            sortable: true,
+            pageSize: 8,
+            pageList: [8, 10, 25, 50, 100],
+
+            formatShowingRows: function (pageFrom, pageTo, totalRows) {
+                return ''
+            },
+            formatRecordsPerPage: function (pageNumber) {
+                return pageNumber + ' rows visible'
+            }
+        })
+    })
+
+</script>
+
+<script>
+    function ConfirmDelete() {
+        var x = confirm("آیا از حذف رکورد اطمینان دارید؟");
+        if (x)
+            return true;
+        else
+            return false;
+    }
+</script>
+
+</body>
+</html>

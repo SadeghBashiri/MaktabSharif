@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl" xmlns:th="http://www.thymeleaf.org">  <!--xmlns:sec="http://www.w3.org/1999/xhtml"-->
+<head>
+    <meta charset="UTF-8">
+    <title>دسته بندی دوره ها</title>
+    <!-- Style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"/>
+
+    <!-- Fonts and icons -->
+    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="../static/css/main.css" th:href="@{/css/main.css}">
+</head>
+
+<body>
+<div class="fresh-table full-color-orange">
+
+    <div>
+        <form style="float: left">
+            <button id="home" class="btn btn-default" formaction="/home" formmethod="get">خانه</button>
+        </form>
+    </div>
+    <div style="float: left">
+        <form>
+            <button id="exit" class="btn btn-default" formaction="/signOut" formmethod="get">خروج از حساب کاربری
+            </button>
+        </form>
+    </div>
+
+    <form action="#" class="m-3" th:action="@{/manager/addCategory}" method="post">
+        <div class="row text-center justify-content-center " style="direction: rtl">
+            <input class="text-center rounded m-2" type="text" placeholder="عنوان دوره"
+                   th:field="*{courseCategory.title}" required/>
+            <input class="text-center rounded m-2" type="text" th:field="*{courseCategory.id}" hidden/>
+            <input class="btn btn-dark m-2" type="submit" value="ثبت" th:name="ok"/>
+            <p th:if="${param.categoryTitleError}" class="text-danger" style="color: white">دسته بندی وارد شده تکراری
+                میباشد</p>
+        </div>
+    </form>
+
+    <table id="fresh-table" class="table" th:hidden="${courseCategories.size()==0}">
+        <thead>
+        <th data-field="id">شناسه</th>
+        <th data-field="firstName">عنوان</th>
+        <th data-field="status">وضعیت</th>
+        <th data-field="actions">عملیات</th>
+        </thead>
+        <tbody>
+
+        <tr th:each="category, courseCategory : ${courseCategories}">
+            <td th:text="${category.getId()}"></td>
+            <td th:text="${category.title}"></td>
+            <td>
+                <span th:if="${category.getActive() == false}">غیر فعال</span>
+                <span th:unless="${category.getActive() == false}">فعال</span>
+            </td>
+            <td style="width: 150px">
+                <a rel="tooltip" title="فعال" th:href="@{/manager/active/__${category.id}__}" role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-check-circle"></i>
+                </a>
+                <a rel="tooltip" title="غیرفعال" th:href="@{/manager/deActive/__${category.id}__}" role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-times-circle"></i>
+                </a>
+                <a rel="tooltip" title="ویرایش" th:href="@{/manager/editCategory/__${category.id}__}" role="button"
+                   class="btn btn-warning btn-circle">
+                    <i class="fa fa-edit"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table/dist/bootstrap-table.min.js"></script>
+
+<script type="text/javascript">
+    var $table = $('#fresh-table')
+
+    function test(name, password) {
+        alert("name: " + name + " password:" + password);
+    }
+
+    $(function () {
+        $table.bootstrapTable({
+            classes: 'table table-hover table-striped',
+            toolbar: '.toolbar',
+
+            search: true,
+            showRefresh: true,
+            showToggle: true,
+            showColumns: true,
+            pagination: true,
+            striped: true,
+            sortable: true,
+            pageSize: 8,
+            pageList: [8, 10, 25, 50, 100],
+
+            formatShowingRows: function (pageFrom, pageTo, totalRows) {
+                return ''
+            },
+            formatRecordsPerPage: function (pageNumber) {
+                return pageNumber + ' rows visible'
+            }
+        })
+    })
+
+</script>
+
+</body>
+</html>

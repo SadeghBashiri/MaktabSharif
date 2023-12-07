@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl" xmlns:th="http://www.thymeleaf.org">  <!--xmlns:sec="http://www.w3.org/1999/xhtml"-->
+<head>
+    <meta charset="UTF-8">
+    <title>سوالات این آزمون</title>
+    <!-- Style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"/>
+
+    <!-- Fonts and icons -->
+    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="../static/css/main.css" th:href="@{/css/main.css}">
+</head>
+
+<body>
+<div class="fresh-table full-color-orange">
+
+    <div>
+        <div>
+            <form style="float: left">
+                <button id="home" class="btn btn-default" formaction="/home" formmethod="get">خانه</button>
+            </form>
+        </div>
+        <div style="float: left">
+            <form class="m-2" th:action="@{/course/__${courseId}__/quizzes}">
+                <button class="btn btn-default" type="submit">بازگشت به لیست آزمون های دوره</button>
+            </form>
+        </div>
+        <div style="float: left">
+            <form>
+                <button id="exit" class="btn btn-default" formaction="/signOut" formmethod="get">خروج از حساب کاربری
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="border border-light p-1 rounded" style="padding-right: 10px"
+         th:if="${T(ir.maktab.onlineexam.utility.ServiceTools).getQuizService().findQuizById(__${quizId}__).creatorTeacherId == currentTeacherAccount.id}">
+
+        <h4 class="text-white" style="float: right; padding-left: 10px">افزودن سوال</h4>
+
+        <div class="row  w-auto justify-content-center  rounded" style="direction: rtl">
+            <form class="m-1" th:action="@{/quiz/__${quizId}__/addQuestion/fromBank}"
+                  style="float: right; padding-left: 10px">
+                <input class="btn btn-outline-dark m-2" type="submit" value="انتخاب از بانک سوالات">
+            </form>
+
+            <form class="m-1" action="#" th:each="questionTypeItem:${questionTypes}"
+                  th:action="@{/quiz/__${quizId}__/addQuestion/__${questionTypeItem.name()}__}"
+                  style="float: right; padding-left: 10px">
+                <input class="btn btn-dark m-2" type="submit" th:value="${questionTypeItem.getPersian()}"/>
+            </form>
+
+        </div>
+    </div>
+    <form th:action="@{/quiz/__${quizId}__/saveQuizDefaultScores}">
+        <table id="fresh-table" class="table" th:hidden="${questions.size()==0}">
+            <thead>
+            <th data-field="id">شماره سوال</th>
+            <th data-field="type">نوع سوال</th>
+            <th data-field="title">عنوان سوال</th>
+            <th data-field="score">نمره</th>
+            <th data-field="actions">عملیات</th>
+            </thead>
+            <tbody>
+
+            <tr th:each="questionItem:${questions}">
+                <td th:text="${questionItemStat.index + 1}"></td>
+                <td th:text="${T(ir.maktab.onlineexam.utility.QuestionTools).getQuestionType(questionItem).getPersian()}"></td>
+                <td th:text="${questionItem.title}"></td>
+                <td>
+                    <input th:disabled="${currentTeacherAccount.getId() != questionItem.creatorTeacherId}"
+                           class="text-center rounded m-1" style="width: 50px" type="text"
+                           th:field="*{scoresDto.scores[__${questionItemStat.index}__].value}" placeholder="نمره"/>
+                </td>
+                <td style="width: 300px">
+                    <a rel="tooltip" title="مشاهده سوال"
+                       th:href="@{/quiz/__${quizId}__/question/__${questionItem.id}__/view}" role="button"
+                       class="btn btn-warning btn-circle">
+                        <i class="fa fa-eye"></i>
+                    </a>
+                    <a rel="tooltip" title="ویرایش"
+                       th:href="@{/quiz/__${quizId}__/question/__${questionItem.id}__/edit}"
+                       th:if="${currentTeacherAccount.getId() == questionItem.creatorTeacherId}"
+                       role="button"
+                       class="btn btn-warning btn-circle"
+                       th:disabled="${currentTeacherAccount.getId() != questionItem.creatorTeacherId}">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                    <a rel="tooltip" title="حذف" th:href="@{/quiz/__${quizId}__/question/__${questionItem.id}__/delete}"
+                       role="button"
+                       th:disabled="${currentTeacherAccount.getId() != questionItem.creatorTeacherId}"
+                       class="btn btn-warning btn-circle" onclick="return ConfirmDelete()">
+                        <i class="fa fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div style="direction: rtl; float: left; padding-left: 35%" th:if="${questions.size()!=0}"
+             class="row justify-content-end">
+
+            <label class="mt-3 font-weight-bolder ml-2 mr-2"> سقف کل نمره: </label>
+            <label th:text="${maxScore}" class="mt-3 font-weight-bolder"></label>
+
+            <input class="btn btn-dark mr-3 ml-3"
+                   type="submit"
+                   value="ذخیره نمرات"
+                   th:if="${questions.size()!=0}"
+                   th:disabled="${T(ir.maktab.onlineexam.utility.ServiceTools).getQuizService().findQuizById(__${quizId}__).creatorTeacherId != currentTeacherAccount.id}">
+
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table/dist/bootstrap-table.min.js"></script>
+
+<script type="text/javascript">
+    var $table = $('#fresh-table')
+
+    $(function () {
+        $table.bootstrapTable({
+            classes: 'table table-hover table-striped',
+            toolbar: '.toolbar',
+
+            search: true,
+            showRefresh: true,
+            showToggle: true,
+            showColumns: true,
+            pagination: true,
+            striped: true,
+            sortable: true,
+            pageSize: 8,
+            pageList: [8, 10, 25, 50, 100],
+
+            formatShowingRows: function (pageFrom, pageTo, totalRows) {
+                return ''
+            },
+            formatRecordsPerPage: function (pageNumber) {
+                return pageNumber + ' rows visible'
+            }
+        })
+    })
+
+</script>
+
+<script type="text/javascript" src="../static/js/persian-date.js" th:src="@{/js/persian-date.js}"></script>
+<script type="text/javascript" src="../static/js/persian-datepicker.js" th:src="@{/js/persian-datepicker.js}"></script>
+<script>
+    function ConfirmDelete() {
+        var x = confirm("آیا از حذف رکورد اطمینان دارید؟");
+        if (x)
+            return true;
+        else
+            return false;
+    }
+</script>
+</body>
+</html>
